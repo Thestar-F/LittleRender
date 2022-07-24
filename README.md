@@ -1,6 +1,6 @@
 # LittleRender
 
-This is a Little rasterizer based on [ssloy's tinyrenderer](https://github.com/ssloy/tinyrenderer). 
+This is a LittlerRender based on [ssloy's tinyrenderer](https://github.com/ssloy/tinyrenderer). 
 
 ![image](https://github.com/Thestar-F/LittleRender/blob/main/img/img1.png)
 
