@@ -75,7 +75,7 @@ void triangle(Shader& shader, int width, int height, mat<4, 3>& prj_tri,
                 int idx = SampleN * (p.x + p.y * width) + i;
 				
 
-                if(frag_z < 0.0 || frag_z > 2.0)
+                if(frag_z < 0.0 || frag_z > 255.0)
                     continue;
 
 
@@ -105,8 +105,8 @@ void triangle(Shader& shader, int width, int height, mat<4, 3>& prj_tri,
 
 void shadowMap(Matrix& Mat, mat<3, 3>& tri, int width, int height, vector<double>& s_buffer) {
 	
-    mat<4, 4> W2V = Mat.vp * Mat.c2p * Mat.w2c;
-    mat<4, 4> W2P = Mat.c2p * Mat.w2c;
+    mat<4, 4> W2V = Mat.vp * Mat.c2p * Mat.w2c * Mat.mod;
+    mat<4, 4> W2P = Mat.c2p * Mat.w2c * Mat.mod;
 
     vec4 prj[3];
     for(int i = 0; i < 3; i++){
@@ -156,6 +156,17 @@ void shadowMap(Matrix& Mat, mat<3, 3>& tri, int width, int height, vector<double
 		}
 	}
 
+}
+
+
+void WriteShadowMap(TGAImage& img, vector<double>& s_buffer){
+    for(int i = 0; i < img.get_width(); i++){
+        for(int j = 0; j < img.get_height(); j++){
+            int depth = (int)(s_buffer[i + j * img.get_height()] + 0.5);
+            TGAColor color(depth, depth, depth);
+            img.set(i, j, color);
+        }
+    }
 }
 
 

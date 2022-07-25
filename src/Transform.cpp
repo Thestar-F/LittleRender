@@ -57,7 +57,8 @@ mat<4, 4> viewport(int width, int height) {
 	Matrix[0][3] = width / 2.f;
 	Matrix[1][1] = height / 2.f;
 	Matrix[1][3] = height / 2.f;
-	Matrix[2][3] = 1.f;
+    Matrix[2][2] = 127.5f;
+    Matrix[2][3] = 127.5f;
 	return Matrix;
 }
 

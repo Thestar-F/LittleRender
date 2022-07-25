@@ -21,9 +21,11 @@ struct Texture {
     TGAImage Norm;
     TGAImage Roug;
     TGAImage Emis;
+    TGAImage Occl;
 };
 
 struct Matrix {
+    mat<4, 4> mod;
 	mat<4, 4> w2c;
 	mat<4, 4> c2p;
 	mat<4, 4> vp;

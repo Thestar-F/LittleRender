@@ -42,13 +42,13 @@ Shader::Shader(vec3 light, Matrix& m, const vec3& color) {
 void Shader::vertex(mat<3, 3>& tri, mat<3, 3>& nrm, mat<2, 3>& uv, mat<4, 3>& prj_tri) {
 	varing_uv = uv;
 
-	mat<4, 4> Mat = (M.w2c).invert_transpose();
+    mat<4, 4> Mat = (M.w2c * M.mod).invert_transpose();
 	for (int i = 0; i < 3; i++) {
 		varing_nrm.set_col(i, proj<3>(Mat * embed<4>(nrm.col(i), 0.)));
 	}
 
 	for (int i = 0; i < 3; i++) {
-		prj_tri.set_col(i, M.w2c * embed<4>(tri.col(i)));
+        prj_tri.set_col(i, M.w2c * M.mod * embed<4>(tri.col(i)));
 		varing_tri.set_col(i, proj<3>(prj_tri.col(i)));
 	}
 
@@ -59,6 +59,8 @@ void Shader::vertex(mat<3, 3>& tri, mat<3, 3>& nrm, mat<2, 3>& uv, mat<4, 3>& pr
 bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double>& s_buffer, int width) {
 	vec3 bn = (varing_nrm * bar).normalize();
 	vec2 uv = varing_uv * bar;
+    uv.x = fmod(uv.x, 1.0);
+    uv.y = fmod(uv.y, 1.0);
 
 	vec3 tri = varing_tri * bar;
 
@@ -66,7 +68,7 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
     int idx = int(stri[0]) + int(stri[1]) * width;
     float shadow = 0.3f;
     if(idx < int(s_buffer.size()))
-        shadow += 0.7f * (stri[2] < s_buffer[idx] + 0.01f);
+        shadow += 0.7f * (stri[2] < s_buffer[idx] + 1.f);
 
 
 
@@ -106,6 +108,34 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
 
     //---------------------------------------------------------------------------------//
 
+    //Blinn-Phong
+
+//    vec3 ambient(10, 10, 10);
+//    TGAColor DiffuseColor = sample2D(flash.Diff, uv);
+//    vec3 dcolor(DiffuseColor[2], DiffuseColor[1], DiffuseColor[0]);
+
+
+//    vec3 viewDir = (vec3(-tri.x, -tri.y, -tri.z)).normalize();
+//    vec3 h = light_cam + viewDir;
+//    float hlen = sqrt(h.x * h.x + h.y * h.y + h.z * h.z);
+//    h = h / hlen;
+
+
+
+//    float NdotH = max(n * h, 0.0);
+//    float NdotL = max(n * light_cam, 0.0);
+
+//    float diff = NdotL;
+//    float spec = pow(NdotH, 32);
+
+//    TGAColor Ecolor = sample2D(flash.Emis, uv);
+//    vec3 Le(Ecolor[2], Ecolor[1], Ecolor[0]);
+
+//    for(int i = 0; i < 3; i++)
+//        color[i] = dcolor[i] * (0.05 + (diff + spec) * shadow) + Le[i];
+
+
+
 
     //PBR
 
@@ -123,7 +153,9 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
 
     float roughness = sample2D(flash.Roug, uv)[0] / 255.f;
     float metalness = sample2D(flash.Meta, uv)[0] / 255.f;
-    metalness = 0.f;
+
+
+    float ao = sample2D(flash.Occl, uv)[0] / 255.f;
 
 
     TGAColor DiffuseColor = sample2D(flash.Diff, uv);
@@ -131,7 +163,6 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
     vec3 dcolor(DiffuseColor[2], DiffuseColor[1], DiffuseColor[0]);
 
     vec3 albedo = 5 * dcolor / 255;
-    albedo[0] *= 1.15;
 
     float D = DistriGGX(NdotH, roughness);
     float G = GeoSmith(NdotV, NdotL, roughness);
@@ -151,6 +182,7 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
 
     vec3 coe = cordot(kd,albedo) / Pi + specular;
 
+
     vec3 L0 = cordot(coe, radiance) * NdotL;
 
 
@@ -164,7 +196,8 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
     ambient = cordot(ambient, albedo);
 
 
-    color = ambient  + L0 * shadow + 10 * Le;
+    color = (ambient  + L0 * shadow) * ao + Le;
+
 
 	return false;
 }

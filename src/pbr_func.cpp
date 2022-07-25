@@ -39,7 +39,7 @@ float GeoSmith(float NdotV, float NdotL, float roughness){
 
 
 vec3 FnelSchlick(const vec3& color, float cosTheta, float metalness){
-    vec3 F0(0.02, 0.02, 0.02);
+    vec3 F0(0.04, 0.04, 0.04);
     float alpha = 1 - metalness;
     float beta = metalness;
     for(int i = 0; i < 3; i++)
