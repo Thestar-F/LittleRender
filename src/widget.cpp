@@ -40,8 +40,6 @@ void Widget::paintEvent(QPaintEvent*){
             }
             color = color / SampleN;
 
-            if (color[0] < 1 && color[1] < 1 && color[2] < 1)
-                color = vec3(50, 50, 50);
             ACES(color);
 
             //Qt

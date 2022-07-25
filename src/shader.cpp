@@ -132,7 +132,7 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
 //    vec3 Le(Ecolor[2], Ecolor[1], Ecolor[0]);
 
 //    for(int i = 0; i < 3; i++)
-//        color[i] = dcolor[i] * (0.05 + (diff + spec) * shadow) + Le[i];
+//        color[i] = dcolor[i] * (0.1 + (diff + spec) * shadow) + Le[i];
 
 
 
@@ -162,7 +162,7 @@ bool Shader::fragment(const vec3 bar, vec3& color, Texture& flash, vector<double
 
     vec3 dcolor(DiffuseColor[2], DiffuseColor[1], DiffuseColor[0]);
 
-    vec3 albedo = 5 * dcolor / 255;
+    vec3 albedo = 4.5 * dcolor / 255;
 
     float D = DistriGGX(NdotH, roughness);
     float G = GeoSmith(NdotV, NdotL, roughness);
